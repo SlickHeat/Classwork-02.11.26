@@ -244,3 +244,143 @@ public:
     return tmp;
   }
 };
+
+class Mtx {
+  size_t m;
+  size_t n;
+  Ints data_mtx;
+  // m - кол-во строк  n - кол-во столбцов
+
+  public:
+  Mtx();
+  Mtx(size_t m, size_t n);
+  Mtx(size_t m, size_t n, const Ints &data);
+  ~Mtx() = default;
+
+  Mtx sum(Mtx const& rhs) const;
+  Mtx mul(Mtx const& rhs) const;
+
+  Ints getCol(size_t id) const;
+  Ints getRow(size_t id) const;
+
+  Mtx addRow(const int pasta) const;
+
+  Mtx transpose() const;
+  int det() const;
+};
+
+Mtx::Mtx():
+m(0), n(0)
+{}
+
+Mtx::Mtx(size_t m, size_t n):
+  m(m), n(n), data_mtx(n*m, 0)
+{}
+
+Mtx::Mtx(size_t m, size_t n, const Ints &data):
+  m(m), n(n), data_mtx(data)
+{}
+
+Mtx Mtx::sum(Mtx const& rhs) const {
+  Mtx result(m, n);
+  for (size_t i = 0; i < data_mtx.getSize(); i++) {
+    if (rhs.data_mtx.get(i) > std::numeric_limits< int >::max() - data_mtx.get(i)) {
+      throw std::logic_error("Overflow");
+    }
+    result.data_mtx.set(i, rhs.data_mtx.get(i) + data_mtx.get(i));
+  }
+
+  return result;
+}
+
+Ints Mtx::getCol(const size_t id) const {
+  Ints res;
+  for (size_t i = 0; i < m; ++i) {
+    res = res.append(data_mtx.get(i * n + id));
+  }
+  return res;
+}
+
+Ints Mtx::getRow(const size_t id) const {
+  Ints res;
+  for (size_t i = 0; i < n; ++i) {
+    res = res.append(data_mtx.get(id * n + i));
+  }
+  return res;
+}
+
+Mtx Mtx::mul(const Mtx& rhs) const {
+  Mtx res(m, rhs.n);
+  for (size_t i = 0; i < m; i++) {
+    for (size_t j = 0; j < rhs.n; j++) {
+      Ints row = getRow(i);
+      Ints col = rhs.getCol(j);
+
+      int sm = 0;
+      for (size_t k = 0; k < rhs.m; k++) {
+        sm += row.get(k) * col.get(k);
+      }
+
+      res.data_mtx.set(i * rhs.n + j, sm);
+    }
+  }
+
+  return res;
+}
+
+Mtx Mtx::addRow(const int pasta) const {
+  Mtx res(m+1, n);
+  for (size_t i = 0; i < m*n; i++) {
+    res.data_mtx.set(i, data_mtx.get(i));
+  }
+  for (size_t i = 0; i < n; i++) {
+    res.data_mtx.set(n*m + i, pasta);
+  }
+  return res;
+}
+
+Mtx Mtx::transpose() const {
+  Mtx res(n, m);
+
+  for (size_t i = 0; i < m; i++) {
+    for (size_t j = 0; j < n; j++) {
+      res.data_mtx.set(j * m + i, data_mtx.get(i * n + j));
+    }}
+
+  return res;
+}
+
+int Mtx::det() const{
+  if (m != n) throw std::logic_error("Can't estimate determinant");
+  if (m == 1) return data_mtx.get(0);
+  if (m == 2) {
+    return data_mtx.get(0) * data_mtx.get(3) - data_mtx.get(1) * data_mtx.get(2);
+  }
+
+  int res = 0;
+
+  for (size_t i = 0; i < n; i++) {
+    Mtx minor(m-1, n-1);
+
+    size_t p = 0;
+
+    for (size_t row = 1; row < m; row++) {
+      for (size_t col = 0; col < n; col++) {
+        if (col == i) continue;
+
+        minor.data_mtx.set(p++, data_mtx.get(row * n + col));
+      }
+    }
+
+    int sign = i % 2 == 0 ? 1 : -1;
+
+    res += sign * data_mtx.get(i) * minor.det();
+  }
+
+  return res;
+}
+
+int main()
+{
+  return 0;
+}
