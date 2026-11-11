@@ -199,7 +199,8 @@ struct p_t
   int y;
 };
 
-class Points {
+class Points 
+{
   Ints data_points;
 public:
   Points():
@@ -212,12 +213,14 @@ public:
 
   ~Points() = default;
 
-  void set(const size_t id, const p_t p) noexcept {
+  void set(const size_t id, const p_t p) noexcept 
+  {
     data_points.set(id*2, p.x);
     data_points.set(id*2+1, p.y);
   }
 
-  p_t get(const size_t id) const noexcept {
+  p_t get(const size_t id) const noexcept 
+  {
     p_t res;
     res.x = data_points.get(id*2);
     res.y = data_points.get(id*2+1);
@@ -225,16 +228,19 @@ public:
     return res;
   }
 
-  Points append(p_t p) const {
+  Points append(p_t p) const 
+  {
     size_t const size = data_points.getSize();
 
-    if (size > std::numeric_limits<size_t>::max() - 1) {
+    if (size > std::numeric_limits<size_t>::max() - 1) 
+    {
       throw std::logic_error("Overflow");
     }
 
     Ints tmp(size+2);
 
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) 
+    {
       tmp.set(i, data_points.get(i));
     }
 
@@ -245,7 +251,8 @@ public:
   }
 };
 
-class Mtx {
+class Mtx 
+{
   size_t m;
   size_t n;
   Ints data_mtx;
@@ -281,10 +288,13 @@ Mtx::Mtx(size_t m, size_t n, const Ints &data):
   m(m), n(n), data_mtx(data)
 {}
 
-Mtx Mtx::sum(Mtx const& rhs) const {
+Mtx Mtx::sum(Mtx const& rhs) const 
+{
   Mtx result(m, n);
-  for (size_t i = 0; i < data_mtx.getSize(); i++) {
-    if (rhs.data_mtx.get(i) > std::numeric_limits< int >::max() - data_mtx.get(i)) {
+  for (size_t i = 0; i < data_mtx.getSize(); i++) 
+  {
+    if (rhs.data_mtx.get(i) > std::numeric_limits< int >::max() - data_mtx.get(i)) 
+    {
       throw std::logic_error("Overflow");
     }
     result.data_mtx.set(i, rhs.data_mtx.get(i) + data_mtx.get(i));
@@ -293,7 +303,8 @@ Mtx Mtx::sum(Mtx const& rhs) const {
   return result;
 }
 
-Ints Mtx::getCol(const size_t id) const {
+Ints Mtx::getCol(const size_t id) const 
+{
   Ints res;
   for (size_t i = 0; i < m; ++i) {
     res = res.append(data_mtx.get(i * n + id));
@@ -301,23 +312,29 @@ Ints Mtx::getCol(const size_t id) const {
   return res;
 }
 
-Ints Mtx::getRow(const size_t id) const {
+Ints Mtx::getRow(const size_t id) const 
+{
   Ints res;
-  for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) 
+  {
     res = res.append(data_mtx.get(id * n + i));
   }
   return res;
 }
 
-Mtx Mtx::mul(const Mtx& rhs) const {
+Mtx Mtx::mul(const Mtx& rhs) const 
+{
   Mtx res(m, rhs.n);
-  for (size_t i = 0; i < m; i++) {
-    for (size_t j = 0; j < rhs.n; j++) {
+  for (size_t i = 0; i < m; i++) 
+  {
+    for (size_t j = 0; j < rhs.n; j++) 
+    {
       Ints row = getRow(i);
       Ints col = rhs.getCol(j);
 
       int sm = 0;
-      for (size_t k = 0; k < rhs.m; k++) {
+      for (size_t k = 0; k < rhs.m; k++) 
+      {
         sm += row.get(k) * col.get(k);
       }
 
@@ -328,44 +345,56 @@ Mtx Mtx::mul(const Mtx& rhs) const {
   return res;
 }
 
-Mtx Mtx::addRow(const int pasta) const {
+Mtx Mtx::addRow(const int pasta) const 
+{
   Mtx res(m+1, n);
-  for (size_t i = 0; i < m*n; i++) {
+  for (size_t i = 0; i < m*n; i++) 
+  {
     res.data_mtx.set(i, data_mtx.get(i));
   }
-  for (size_t i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) 
+  {
     res.data_mtx.set(n*m + i, pasta);
   }
   return res;
 }
 
-Mtx Mtx::transpose() const {
+Mtx Mtx::transpose() const 
+{
   Mtx res(n, m);
 
-  for (size_t i = 0; i < m; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (size_t i = 0; i < m; i++) 
+  {
+    for (size_t j = 0; j < n; j++) 
+    {
       res.data_mtx.set(j * m + i, data_mtx.get(i * n + j));
-    }}
+    }
+  }
 
   return res;
 }
 
-int Mtx::det() const{
+int Mtx::det() const
+{
   if (m != n) throw std::logic_error("Can't estimate determinant");
   if (m == 1) return data_mtx.get(0);
-  if (m == 2) {
+  if (m == 2) 
+  {
     return data_mtx.get(0) * data_mtx.get(3) - data_mtx.get(1) * data_mtx.get(2);
   }
 
   int res = 0;
 
-  for (size_t i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) 
+  {
     Mtx minor(m-1, n-1);
 
     size_t p = 0;
 
-    for (size_t row = 1; row < m; row++) {
-      for (size_t col = 0; col < n; col++) {
+    for (size_t row = 1; row < m; row++) 
+    {
+      for (size_t col = 0; col < n; col++) 
+      {
         if (col == i) continue;
 
         minor.data_mtx.set(p++, data_mtx.get(row * n + col));
@@ -391,9 +420,12 @@ private:
   Ints data_plot;
 };
 
-void Plot::set(const int x, const int y) {
-  for (size_t i = 0; i < data_plot.getSize(); i+=2) {
-    if (data_plot.get(i) == x) {
+void Plot::set(const int x, const int y) 
+{
+  for (size_t i = 0; i < data_plot.getSize(); i+=2) 
+  {
+    if (data_plot.get(i) == x) 
+    {
       data_plot.set(i+1, y);
       return;
     }
@@ -403,9 +435,12 @@ void Plot::set(const int x, const int y) {
   data_plot = data_plot.append(y);
 }
 
-int Plot::calc(const int x) const {
-  for (size_t i = 0; i < data_plot.getSize(); i+=2) {
-    if (data_plot.get(i) == x) {
+int Plot::calc(const int x) const 
+{
+  for (size_t i = 0; i < data_plot.getSize(); i+=2) 
+  {
+    if (data_plot.get(i) == x) 
+    {
       return data_plot.get(i+1);
     }
   }
@@ -413,10 +448,13 @@ int Plot::calc(const int x) const {
   throw std::logic_error("Point not found");
 }
 
-int Plot::solve(Ints & buf, const int y) const {
+int Plot::solve(Ints & buf, const int y) const 
+{
   int cnt = 0;
-  for (size_t i = 1; i < data_plot.getSize(); i+=2) {
-    if (y == data_plot.get(i)) {
+  for (size_t i = 1; i < data_plot.getSize(); i+=2) 
+  {
+    if (y == data_plot.get(i)) 
+    {
       buf = buf.append(data_plot.get(i-1));
       cnt++;
     }
@@ -424,11 +462,13 @@ int Plot::solve(Ints & buf, const int y) const {
   return cnt;
 }
 
-Points Plot::append(const p_t p) const {
+Points Plot::append(const p_t p) const 
+{
   size_t const size = data_plot.getSize();
   Ints tmp(size + 2);
 
-  for (size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) 
+  {
     tmp.set(i, data_plot.get(i));
   }
 
@@ -441,5 +481,6 @@ Points Plot::append(const p_t p) const {
 
 int main()
 {
+  int arr[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   return 0;
 }
