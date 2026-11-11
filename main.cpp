@@ -380,6 +380,65 @@ int Mtx::det() const{
   return res;
 }
 
+class Plot
+{
+public:
+  void set(const int x, const int y);
+  int calc(int x) const;
+  int solve(Ints & buf, int y) const;
+  Points append(p_t p) const;
+private:
+  Ints data_plot;
+};
+
+void Plot::set(const int x, const int y) {
+  for (size_t i = 0; i < data_plot.getSize(); i+=2) {
+    if (data_plot.get(i) == x) {
+      data_plot.set(i+1, y);
+      return;
+    }
+  }
+
+  data_plot = data_plot.append(x);
+  data_plot = data_plot.append(y);
+}
+
+int Plot::calc(const int x) const {
+  for (size_t i = 0; i < data_plot.getSize(); i+=2) {
+    if (data_plot.get(i) == x) {
+      return data_plot.get(i+1);
+    }
+  }
+
+  throw std::logic_error("Point not found");
+}
+
+int Plot::solve(Ints & buf, const int y) const {
+  int cnt = 0;
+  for (size_t i = 1; i < data_plot.getSize(); i+=2) {
+    if (y == data_plot.get(i)) {
+      buf = buf.append(data_plot.get(i-1));
+      cnt++;
+    }
+  }
+  return cnt;
+}
+
+Points Plot::append(const p_t p) const {
+  size_t const size = data_plot.getSize();
+  Ints tmp(size + 2);
+
+  for (size_t i = 0; i < size; i++) {
+    tmp.set(i, data_plot.get(i));
+  }
+
+  tmp.set(size, p.x);
+  tmp.set(size+1, p.y);
+
+  return tmp;
+}
+
+
 int main()
 {
   return 0;
