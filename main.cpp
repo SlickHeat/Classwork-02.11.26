@@ -195,8 +195,52 @@ Ints Ints::append(int i)
 
 struct p_t
 {
-private:
   int x;
   int y;
 };
 
+class Points {
+  Ints data_points;
+public:
+  Points():
+    data_points(Ints())
+  {}
+
+  Points(const Ints &data):
+    data_points(data)
+  {}
+
+  ~Points() = default;
+
+  void set(const size_t id, const p_t p) noexcept {
+    data_points.set(id*2, p.x);
+    data_points.set(id*2+1, p.y);
+  }
+
+  p_t get(const size_t id) const noexcept {
+    p_t res;
+    res.x = data_points.get(id*2);
+    res.y = data_points.get(id*2+1);
+
+    return res;
+  }
+
+  Points append(p_t p) const {
+    size_t const size = data_points.getSize();
+
+    if (size > std::numeric_limits<size_t>::max() - 1) {
+      throw std::logic_error("Overflow");
+    }
+
+    Ints tmp(size+2);
+
+    for (size_t i = 0; i < size; i++) {
+      tmp.set(i, data_points.get(i));
+    }
+
+    tmp.set(size, p.x);
+    tmp.set(size+1, p.y);
+
+    return tmp;
+  }
+};
